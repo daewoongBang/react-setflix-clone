@@ -2,6 +2,7 @@ import { createGlobalStyle, ThemeProvider } from 'styled-components';
 import { theme } from './theme';
 import { RouterProvider } from 'react-router-dom';
 import routes from './routes';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 const GlobalStyle = createGlobalStyle`
 html, body, div, span, applet, object, iframe,
@@ -57,9 +58,9 @@ table {
 body {
   font-weight: 300;
   font-family: 'Source Sans Pro', sans-serif;
-  color:black;
+  color:${(props) => props.theme.white.darker};
   line-height: 1.2;
-  
+  background-color: #000000;
 }
 a {
   text-decoration:none;
@@ -68,10 +69,14 @@ a {
 `;
 
 function App() {
+  const queryClient = new QueryClient();
+
   return (
     <ThemeProvider theme={theme}>
-      <GlobalStyle />
-      <RouterProvider router={routes} />
+      <QueryClientProvider client={queryClient}>
+        <GlobalStyle />
+        <RouterProvider router={routes} />
+      </QueryClientProvider>
     </ThemeProvider>
   );
 }
