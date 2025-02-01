@@ -1,11 +1,15 @@
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import styled from 'styled-components';
+import { AnimatePresence, motion } from 'motion/react';
 import { getMovies, IGetMoviesResult } from 'apis/movie';
 import Loading from 'components/Loading';
-import styled from 'styled-components';
 import { makeImagePath } from 'utils/movie';
 
 const Wrapper = styled.div`
   background-color: #000000;
+  padding-bottom: 200px;
+  overflow-x: hidden;
 `;
 
 const Banner = styled.div<{ $bgPhotoPath: string }>`
@@ -29,11 +33,61 @@ const Overview = styled.p`
   width: 50%;
 `;
 
+const Slider = styled.div`
+  position: relative;
+  top: -100px;
+`;
+
+const Row = styled(motion.div)`
+  display: grid;
+  gap: 5px;
+  grid-template-columns: repeat(6, 1fr);
+  position: absolute;
+  width: 100%;
+`;
+
+const Box = styled(motion.div)<{ $bgPhotoPath: string }>`
+  background-color: white;
+  background-image: url(${(props) => props.$bgPhotoPath});
+  background-size: cover;
+  background-position: center center;
+  height: 200px;
+  font-size: 66px;
+`;
+const rowVariants = {
+  hidden: {
+    x: window.innerWidth + 5,
+  },
+  visible: {
+    x: 0,
+  },
+  exit: {
+    x: -window.innerWidth - 5,
+  },
+};
+
+const offset = 6;
+
 const Home = () => {
+  const [index, setIndex] = useState(0);
+  const [leaving, setLeaving] = useState(false);
+
   const { data, isLoading } = useQuery<IGetMoviesResult>({
     queryKey: ['getMovies'],
     queryFn: getMovies,
   });
+
+  const nextContent = () => {
+    if (data) {
+      if (leaving) return;
+      toggleLeaving();
+      const totalMovies = data.results.length - 1;
+      const maxIndex = Math.floor(totalMovies / offset) - 1;
+      setIndex((prev) => (prev === maxIndex ? 0 : prev + 1));
+    }
+  };
+
+  const toggleLeaving = () => setLeaving((prev) => !prev);
 
   return (
     <Wrapper>
@@ -42,11 +96,35 @@ const Home = () => {
       ) : (
         <>
           <Banner
+            onClick={nextContent}
             $bgPhotoPath={makeImagePath(data?.results[0].backdrop_path || '')}
           >
             <Title>{data?.results[0].title}</Title>
             <Overview>{data?.results[0].overview}</Overview>
           </Banner>
+
+          <Slider>
+            <AnimatePresence initial={false} onExitComplete={toggleLeaving}>
+              <Row
+                variants={rowVariants}
+                initial='hidden'
+                animate='visible'
+                exit='exit'
+                transition={{ type: 'tween', duration: 1 }}
+                key={index}
+              >
+                {data?.results
+                  .slice(1)
+                  .slice(offset * index, offset * index + offset)
+                  .map((movie) => (
+                    <Box
+                      key={movie.id}
+                      $bgPhotoPath={makeImagePath(movie.backdrop_path, 'w500')}
+                    />
+                  ))}
+              </Row>
+            </AnimatePresence>
+          </Slider>
         </>
       )}
     </Wrapper>

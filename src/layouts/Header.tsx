@@ -161,7 +161,7 @@ const Header = () => {
             animate={{
               x: isClickedSearch ? -185 : 0,
             }}
-            transition={{ ease: 'linear' }}
+            transition={{ type: 'tween', ease: 'linear' }}
             fill='currentColor'
             viewBox='0 0 20 20'
             xmlns='http://www.w3.org/2000/svg'
