@@ -2,7 +2,7 @@ const Home = () => {
   return (
     <div
       style={{
-        backgroundColor: 'black',
+        backgroundColor: 'whitesmoke',
         height: '200vh',
       }}
     >
