@@ -1,5 +1,7 @@
 import { createGlobalStyle, ThemeProvider } from 'styled-components';
 import { theme } from './theme';
+import { RouterProvider } from 'react-router-dom';
+import routes from './routes';
 
 const GlobalStyle = createGlobalStyle`
 html, body, div, span, applet, object, iframe,
@@ -69,6 +71,7 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <GlobalStyle />
+      <RouterProvider router={routes} />
     </ThemeProvider>
   );
 }
